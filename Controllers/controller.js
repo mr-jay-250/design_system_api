@@ -21,7 +21,6 @@ const {
 
 async function login(req, res) {
   const { email, password } = req.body;
-  console.log('hii');
   let user = await findUserByEmail(email);
   if (!user) {
     user = await createUser(email, password);
@@ -102,7 +101,6 @@ async function updateSpacingHandler(req, res) {
 async function createColorHandler(req, res) {
   const { projectId, colorName, hexValue, variantCount } = req.body;
   
-  // Create the new color
   const color = await Color.create({ projectId, colorName, hexValue, variantCount });
   
   res.json({ message: 'Color created', colorId: color.id });
