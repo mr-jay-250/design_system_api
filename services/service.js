@@ -40,7 +40,6 @@ async function updateColors(projectId, colors) {
       if (updatedColor) {
         const { hex, count, name } = updatedColor;
 
-        // If any changes detected, update the row
         if (hex !== hexValue || count !== variantCount || name !== colorName) {
           await existingColor.update({ hexValue: hex, variantCount: count, colorName: name });
         }
@@ -55,8 +54,9 @@ async function updateColors(projectId, colors) {
 }
 
 async function updateRadius(id, baseValue, variantCount, multiplier) {
-  const radius = await Radius.findByPk(id);
+  const radius = await Radius.findOne({ where: { projectId: id } });
   if (!radius) throw new Error("Radius not found");
+  console.log('radius....', radius);
   await radius.update({ baseValue, variantCount, multiplier });
 }
 
