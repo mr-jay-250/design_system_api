@@ -28,10 +28,30 @@ async function getUserById(id) {
   return User.findByPk(id);
 }
 
-async function updateColor(projectId, colorName, hexValue, variantCount) {
-  const color = await Color.findOne({ where: { projectId, colorName } });
-  if (!color) throw new Error("Color not found");
-  await color.update({ hexValue, variantCount });
+async function updateColors(projectId, colors) {
+  try {
+    const existingColors = await Color.findAll({ where: { projectId } });
+
+    for (const existingColor of existingColors) {
+      const { id: existingColorId, colorName, hexValue, variantCount } = existingColor;
+
+      const updatedColor = Object.values(colors).find(color => color.id === existingColorId);
+
+      if (updatedColor) {
+        const { hex, count, name } = updatedColor;
+
+        // If any changes detected, update the row
+        if (hex !== hexValue || count !== variantCount || name !== colorName) {
+          await existingColor.update({ hexValue: hex, variantCount: count, colorName: name });
+        }
+      }
+    }
+
+    return { message: "Colors updated" };
+  } catch (error) {
+    console.error("Error updating colors:", error);
+    throw new Error("Internal server error");
+  }
 }
 
 async function updateRadius(id, baseValue, variantCount, multiplier) {
@@ -59,7 +79,7 @@ module.exports = {
   findUserByEmail,
   createProject,
   getProjectById,
-  updateColor,
+  updateColors,
   updateRadius,
   updateSpacing,
   createColor,

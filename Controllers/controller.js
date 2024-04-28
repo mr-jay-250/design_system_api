@@ -5,11 +5,9 @@ const {
     findUserByEmail, 
     createProject, 
     getProjectById, 
-    updateColor, 
+    updateColors, 
     updateRadius, 
-    updateSpacing, 
-    createColor,
-    getCurrentUserId,
+    updateSpacing,
     getUserById,
     getProjectByUserId
 } = require("../services/service");
@@ -76,12 +74,20 @@ async function updateColorHandler(req, res) {
   const { id } = req.params;
   const colors = req.body;
 
-  for (const colorName in colors) {
-    const { hexValue, count } = colors[colorName];
-    await updateColor(id, colorName, hexValue, count);
+  try {
+    const result = await updateColors(id, colors);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
+}
 
-  res.json({ message: "Colors updated" });
+async function createColorHandler(req, res) {
+  const { projectId, colorName, hexValue, variantCount } = req.body;
+  
+  const color = await Color.create({ projectId, colorName, hexValue, variantCount });
+  
+  res.json({ message: 'Color created', colorId: color.id });
 }
 
 async function updateRadiusHandler(req, res) {
@@ -96,14 +102,6 @@ async function updateSpacingHandler(req, res) {
   const { baseValue, variantCount } = req.body;
   await updateSpacing(id, baseValue, variantCount);
   res.json({ message: "Spacing updated" });
-}
-
-async function createColorHandler(req, res) {
-  const { projectId, colorName, hexValue, variantCount } = req.body;
-  
-  const color = await Color.create({ projectId, colorName, hexValue, variantCount });
-  
-  res.json({ message: 'Color created', colorId: color.id });
 }
 
 module.exports = {
